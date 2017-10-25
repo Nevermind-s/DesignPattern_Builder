@@ -12,17 +12,7 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import android.content.Intent;
-import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v7.app.AppCompatActivity;
-import android.text.TextUtils;
-import android.util.Log;
-import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ProgressBar;
-import android.widget.Toast;
+
 
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -47,16 +37,14 @@ import com.google.firebase.database.ValueEventListener;
 
 import boutlendj.salim.designpattern.MainActivity;
 import boutlendj.salim.designpattern.R;
-import it.zenn.washer.core.IntroSlideActivity;
-import it.zenn.washer.core.MainActivity;
-import it.zenn.washer.model.Washer;
+import boutlendj.salim.designpattern.model.User;
 
 
 public class LoginActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener {
 
     private static final String TAG = "LoginActivity";
     private static final int RC_SIGN_IN = 9001;
-    private Washer mWasher;
+    private User mGoogleUser;
     private EditText inputEmail, inputPassword;
     private FirebaseAuth auth;
     private FirebaseDatabase mDatabase;
@@ -72,7 +60,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         //Get Firebase auth instance
         auth = FirebaseAuth.getInstance();
         mDatabase = FirebaseDatabase.getInstance();
-        mRef = mDatabase.getReference("Washers");
+        mRef = mDatabase.getReference("Users");
         if (auth.getCurrentUser() != null) {
             getUserFromDataBase(auth.getCurrentUser().getUid(), null , auth.getCurrentUser());
         }
@@ -142,7 +130,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                                 } else {
                                     getUserFromDataBase(auth.getCurrentUser().getUid(), null, auth.getCurrentUser());
                                     //Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                                    //intent.putExtra("Washer", mWasher);
+                                    //intent.putExtra("User", mGoogleUser);
                                     //startActivity(intent);
                                     //finish();
                                 }
@@ -184,7 +172,6 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
 
     private void firebaseAuthWithGoogle(final GoogleSignInAccount acct) {
 
-        Log.e(TAG, "firebaseAuthWithGoogle:" + acct.getId());
         progressBar.setVisibility(View.VISIBLE);
         AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
         auth.signInWithCredential(credential)
@@ -196,20 +183,16 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                             Log.e(TAG, "signInWithCredential:success" + auth.getCurrentUser().getEmail());
                             getUserFromDataBase(auth.getCurrentUser().getUid(), acct , auth.getCurrentUser());
                             Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                            intent.putExtra("Washer", mWasher);
+                            intent.putExtra("User", mGoogleUser);
                             startActivity(intent);
                             finish();
 
                         } else {
                             // If sign in fails, display a message to the user.
-                            Log.w(TAG, "signInWithCredential:failure", task.getException());
                             Toast.makeText(LoginActivity.this, "Authentication failed.",
                                     Toast.LENGTH_SHORT).show();
                         }
-
-                        // [START_EXCLUDE]
                         progressBar.setVisibility(View.GONE);
-                        // [END_EXCLUDE]
                     }
                 });
     }
@@ -228,20 +211,22 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
 
                 if (!dataSnapshot.exists() && account != null) {
 
-                    Log.e(TAG, "ACCOUNT No Null");
-                    mWasher = new Washer(account.getFamilyName(), account.getGivenName(), account.getEmail(),"",
-                            "","","");
-                    mWasher.setID(mUser.getUid());
-                    mRef.child(auth.getCurrentUser().getUid()).setValue(mWasher);
-                    startActivity(new Intent(LoginActivity.this, IntroSlideActivity.class).putExtra("Washer", mWasher));
+                    mGoogleUser = new User.Builder(mUser.getUid(), account.getEmail())
+                            .firstName(account.getFamilyName())
+                            .lastName(account.getGivenName())
+                            .build();
+
+                    mRef.child(mGoogleUser.getmID()).setValue(mGoogleUser);
+                    startActivity(new Intent(LoginActivity.this, MainActivity.class).putExtra("User", mGoogleUser));
 
                 } else if (!dataSnapshot.exists() && account == null){
 
-                    Log.e(TAG, "ACCOUNT NULL");
-                    mWasher = new Washer(mUser.getDisplayName(), "", mUser.getEmail(),"",
-                            "","","");
-                    mRef.child(auth.getCurrentUser().getUid()).setValue(mWasher);
-                    startActivity(new Intent(LoginActivity.this, IntroSlideActivity.class).putExtra("Washer", mWasher));
+                    mGoogleUser = new User.Builder(mUser.getUid(), mUser.getEmail())
+                            .lastName(mUser.getDisplayName())
+                            .build();
+
+                    mRef.child(mGoogleUser.getmID()).setValue(mGoogleUser);
+                    startActivity(new Intent(LoginActivity.this, MainActivity.class).putExtra("User", mGoogleUser));
                 } else {}
 
                 Log.e(TAG, "END OF FUNC");
@@ -256,9 +241,9 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 Log.e(TAG, "GREAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAT");
-                mWasher = dataSnapshot.getValue(Washer.class);
-                Log.e(TAG, ""+ mWasher.getEmail());
-                startActivity(new Intent(LoginActivity.this, IntroSlideActivity.class).putExtra("Washer", mWasher));
+                mGoogleUser = dataSnapshot.getValue(User.class);
+                Log.e(TAG, ""+ mGoogleUser.getEmail());
+                startActivity(new Intent(LoginActivity.this, MainActivity.class).putExtra("User", mGoogleUser));
                 finish();
             }
 

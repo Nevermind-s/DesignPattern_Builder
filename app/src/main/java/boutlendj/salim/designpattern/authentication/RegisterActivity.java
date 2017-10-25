@@ -21,6 +21,7 @@ import com.google.firebase.database.FirebaseDatabase;
 
 import boutlendj.salim.designpattern.MainActivity;
 import boutlendj.salim.designpattern.R;
+import boutlendj.salim.designpattern.model.User;
 
 
 public class RegisterActivity extends AppCompatActivity {
@@ -28,9 +29,9 @@ public class RegisterActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private Button btnRegister;
     private ProgressBar mProgressBar;
-    private EditText mLastName, mFirstName, mAge, mPhone, mAddress, mEmail, mPassword, mGender;
+    private EditText mLastName, mFirstName, mAge, mPhone, mAddress, mEmail, mPassword;
     private Spinner spinner;
-    private Washer mWasher;
+    private User mUser;
     private FirebaseDatabase mDatabase;
     DatabaseReference mRef;
 
@@ -69,19 +70,27 @@ public class RegisterActivity extends AppCompatActivity {
                     if (!isPasswordValid(mPassword.getText().toString())) {
                         mPassword.setError(getString(R.string.error_invalid_password));
                     }else {
-                        mWasher = new Washer(mFirstName.getText().toString(), mLastName.getText().toString(), mEmail.getText().toString(),
-                                mAge.getText().toString(), mAddress.getText().toString(), mPhone.getText().toString(), spinner.getSelectedItem().toString());
-                        Log.e("Login", "HEEEEEEEEEEEEEEEEEEEEy" + mWasher.getEmail());
-                        mAuth.createUserWithEmailAndPassword(mWasher.getEmail(), mPassword.getText().toString())
+
+                        Log.e("Login", "HEEEEEEEEEEEEEEEEEEEEy" + mUser.getEmail());
+                        mAuth.createUserWithEmailAndPassword(mEmail.getText().toString(), mPassword.getText().toString())
                                 .addOnCompleteListener(RegisterActivity.this, new OnCompleteListener<AuthResult>() {
                                     @Override
                                     public void onComplete(@NonNull Task<AuthResult> task) {
                                         if (!task.isSuccessful()) {
                                             Log.e("Login", "" + task.getException());
                                         } else {
-                                            mWasher.setID(mAuth.getCurrentUser().getUid());
-                                            mRef.child(mWasher.getID()).setValue(mWasher);
-                                            connectUser(mWasher.getEmail(), mPassword.getText().toString());
+                                            mUser = new User.Builder(mAuth.getCurrentUser().getUid(), mEmail.getText().toString())
+                                                    .firstName(mFirstName.getText().toString())
+                                                    .lastName(mLastName.getText().toString())
+                                                    .address(mAddress.getText().toString())
+                                                    .age(mAge.getText().toString())
+                                                    .gender(spinner.getSelectedItem().toString())
+                                                    .phone(mPhone.getText().toString())
+                                                    .build();
+
+
+                                            mRef.child(mUser.getmID()).setValue(mUser);
+                                            connectUser(mUser.getmEmail(), mPassword.getText().toString());
                                         }
                                     }
                                 });
@@ -120,7 +129,7 @@ public class RegisterActivity extends AppCompatActivity {
 
                         } else {
                             Intent intent = new Intent(RegisterActivity.this, MainActivity.class);
-                            intent.putExtra("Washer", mWasher);
+                            intent.putExtra("User", mUser);
                             startActivity(intent);
                             finish();
                         }
