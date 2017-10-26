@@ -81,6 +81,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                 .requestEmail()
                 .build();
 
+
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .enableAutoManage(this /* FragmentActivity */, this /* OnConnectionFailedListener */)
                 .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
@@ -183,12 +184,11 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                             Log.e(TAG, "signInWithCredential:success" + auth.getCurrentUser().getEmail());
                             getUserFromDataBase(auth.getCurrentUser().getUid(), acct , auth.getCurrentUser());
                             Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                            intent.putExtra("User", mGoogleUser);
+                           // intent.putExtra("User", mGoogleUser);
                             startActivity(intent);
                             finish();
 
                         } else {
-                            // If sign in fails, display a message to the user.
                             Toast.makeText(LoginActivity.this, "Authentication failed.",
                                     Toast.LENGTH_SHORT).show();
                         }
@@ -217,7 +217,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                             .build();
 
                     mRef.child(mGoogleUser.getmID()).setValue(mGoogleUser);
-                    startActivity(new Intent(LoginActivity.this, MainActivity.class).putExtra("User", mGoogleUser));
+                    startActivity(new Intent(LoginActivity.this, MainActivity.class));//.putExtra("User", mGoogleUser));
 
                 } else if (!dataSnapshot.exists() && account == null){
 
@@ -226,7 +226,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                             .build();
 
                     mRef.child(mGoogleUser.getmID()).setValue(mGoogleUser);
-                    startActivity(new Intent(LoginActivity.this, MainActivity.class).putExtra("User", mGoogleUser));
+                    startActivity(new Intent(LoginActivity.this, MainActivity.class));//.putExtra("User", mGoogleUser));
                 } else {}
 
                 Log.e(TAG, "END OF FUNC");
@@ -242,8 +242,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 Log.e(TAG, "GREAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAT");
                 mGoogleUser = dataSnapshot.getValue(User.class);
-                Log.e(TAG, ""+ mGoogleUser.getEmail());
-                startActivity(new Intent(LoginActivity.this, MainActivity.class).putExtra("User", mGoogleUser));
+                startActivity(new Intent(LoginActivity.this, MainActivity.class));//.putExtra("User", mGoogleUser));
                 finish();
             }
 

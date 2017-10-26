@@ -71,7 +71,6 @@ public class RegisterActivity extends AppCompatActivity {
                         mPassword.setError(getString(R.string.error_invalid_password));
                     }else {
 
-                        Log.e("Login", "HEEEEEEEEEEEEEEEEEEEEy" + mUser.getEmail());
                         mAuth.createUserWithEmailAndPassword(mEmail.getText().toString(), mPassword.getText().toString())
                                 .addOnCompleteListener(RegisterActivity.this, new OnCompleteListener<AuthResult>() {
                                     @Override
@@ -129,7 +128,7 @@ public class RegisterActivity extends AppCompatActivity {
 
                         } else {
                             Intent intent = new Intent(RegisterActivity.this, MainActivity.class);
-                            intent.putExtra("User", mUser);
+                           // intent.putExtra("User", mUser);
                             startActivity(intent);
                             finish();
                         }
