@@ -59,7 +59,7 @@ public class RegisterActivity extends AppCompatActivity {
         spinner.setAdapter(adapter);
 
         mDatabase = FirebaseDatabase.getInstance();
-        mRef = mDatabase.getReference("Washers");
+        mRef = mDatabase.getReference("User");
 
         btnRegister.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -78,6 +78,8 @@ public class RegisterActivity extends AppCompatActivity {
                                         if (!task.isSuccessful()) {
                                             Log.e("Login", "" + task.getException());
                                         } else {
+                                            /** Here the third representation of my User Object
+                                             * -------------------------------------------------------------*/
                                             mUser = new User.Builder(mAuth.getCurrentUser().getUid(), mEmail.getText().toString())
                                                     .firstName(mFirstName.getText().toString())
                                                     .lastName(mLastName.getText().toString())
@@ -86,7 +88,7 @@ public class RegisterActivity extends AppCompatActivity {
                                                     .gender(spinner.getSelectedItem().toString())
                                                     .phone(mPhone.getText().toString())
                                                     .build();
-
+                                            /** -------------------------------------------------------------*/
 
                                             mRef.child(mUser.getmID()).setValue(mUser);
                                             connectUser(mUser.getmEmail(), mPassword.getText().toString());
@@ -128,7 +130,7 @@ public class RegisterActivity extends AppCompatActivity {
 
                         } else {
                             Intent intent = new Intent(RegisterActivity.this, MainActivity.class);
-                           // intent.putExtra("User", mUser);
+                            intent.putExtra("User", mUser);
                             startActivity(intent);
                             finish();
                         }

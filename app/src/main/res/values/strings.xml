@@ -10,4 +10,6 @@
     <string name="address">Address</string>
     <string name="error_invalid_email">Invalid password</string>
     <string name="error_invalid_password">Invalid password</string>
+    <string name="logout">Logout</string>
+    <string name="phone">Phone</string>
 </resources>

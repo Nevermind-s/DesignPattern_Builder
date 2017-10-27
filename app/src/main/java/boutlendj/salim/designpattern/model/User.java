@@ -1,12 +1,14 @@
 package boutlendj.salim.designpattern.model;
 
 
+import android.os.Parcel;
+import android.os.Parcelable;
 
 /**
  * Created by Salim on 25/10/2017.
  */
 
-public class User {
+public class User implements Parcelable{
 
     private String mID;
     private String mFirstName;
@@ -159,4 +161,46 @@ public class User {
         }
     }
 
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(this.mID);
+        dest.writeString(this.mFirstName);
+        dest.writeString(this.mLastName);
+        dest.writeString(this.mNickName);
+        dest.writeString(this.mAddress);
+        dest.writeString(this.mPhone);
+        dest.writeString(this.mGender);
+        dest.writeString(this.mEmail);
+        dest.writeString(this.mAge);
+    }
+
+    protected User(Parcel in) {
+        this.mID = in.readString();
+        this.mFirstName = in.readString();
+        this.mLastName = in.readString();
+        this.mNickName = in.readString();
+        this.mAddress = in.readString();
+        this.mPhone = in.readString();
+        this.mGender = in.readString();
+        this.mEmail = in.readString();
+        this.mAge = in.readString();
+    }
+
+    public static final Creator<User> CREATOR = new Creator<User>() {
+        @Override
+        public User createFromParcel(Parcel source) {
+            return new User(source);
+        }
+
+        @Override
+        public User[] newArray(int size) {
+            return new User[size];
+        }
+    };
 }

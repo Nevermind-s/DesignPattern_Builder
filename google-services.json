@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "279744617204-pilitd5j51dnst5ojudcn2a8o3477inq.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "boutlendj.salim.designpattern",
+            "certificate_hash": "ff7543986b9fba2f3a341ac1155177a587435ae0"
+          }
+        },
+        {
           "client_id": "279744617204-f7o228h73vdsbsck0plkpcq7m75a28md.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {

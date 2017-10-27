@@ -45,6 +45,8 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
     private static final String TAG = "LoginActivity";
     private static final int RC_SIGN_IN = 9001;
     private User mGoogleUser;
+    private User mDataBaseUser;
+    private User mFireBaseUser;
     private EditText inputEmail, inputPassword;
     private FirebaseAuth auth;
     private FirebaseDatabase mDatabase;
@@ -60,7 +62,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         //Get Firebase auth instance
         auth = FirebaseAuth.getInstance();
         mDatabase = FirebaseDatabase.getInstance();
-        mRef = mDatabase.getReference("Users");
+        mRef = mDatabase.getReference("User");
         if (auth.getCurrentUser() != null) {
             getUserFromDataBase(auth.getCurrentUser().getUid(), null , auth.getCurrentUser());
         }
@@ -183,9 +185,6 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                             // Sign in success, update UI with the signed-in user's information
                             Log.e(TAG, "signInWithCredential:success" + auth.getCurrentUser().getEmail());
                             getUserFromDataBase(auth.getCurrentUser().getUid(), acct , auth.getCurrentUser());
-                            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                           // intent.putExtra("User", mGoogleUser);
-                            startActivity(intent);
                             finish();
 
                         } else {
@@ -207,48 +206,50 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         mRef.orderByChild("id").equalTo(ID).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                Log.e(TAG, "HEEEEEEEEEEEEEEEEEEEEEEY");
+
 
                 if (!dataSnapshot.exists() && account != null) {
 
+                    /**Here i'm using the first representation of my User Object
+                     * ------------------------------------------------------------*/
                     mGoogleUser = new User.Builder(mUser.getUid(), account.getEmail())
                             .firstName(account.getFamilyName())
                             .lastName(account.getGivenName())
                             .build();
+                     /**----------------------------------------------------------------*/
 
                     mRef.child(mGoogleUser.getmID()).setValue(mGoogleUser);
-                    startActivity(new Intent(LoginActivity.this, MainActivity.class));//.putExtra("User", mGoogleUser));
+                    startActivity(new Intent(LoginActivity.this, MainActivity.class).putExtra("User", mGoogleUser));
 
                 } else if (!dataSnapshot.exists() && account == null){
 
-                    mGoogleUser = new User.Builder(mUser.getUid(), mUser.getEmail())
+                    /**Here i'm using the second representation of my User Object
+                     * ------------------------------------------------------------*/
+                    mFireBaseUser = new User.Builder(mUser.getUid(), mUser.getEmail())
                             .lastName(mUser.getDisplayName())
                             .build();
-
-                    mRef.child(mGoogleUser.getmID()).setValue(mGoogleUser);
-                    startActivity(new Intent(LoginActivity.this, MainActivity.class));//.putExtra("User", mGoogleUser));
-                } else {}
-
-                Log.e(TAG, "END OF FUNC");
+                    /**-------------------------------------------------------------*/
+                    mRef.child(mFireBaseUser.getmID()).setValue(mFireBaseUser);
+                    startActivity(new Intent(LoginActivity.this, MainActivity.class).putExtra("User", mFireBaseUser));
+                }
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {}
         });
 
-
         mRef.orderByChild("id").equalTo(ID).addChildEventListener(new ChildEventListener() {
+
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                Log.e(TAG, "GREAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAT");
-                mGoogleUser = dataSnapshot.getValue(User.class);
-                startActivity(new Intent(LoginActivity.this, MainActivity.class));//.putExtra("User", mGoogleUser));
+
+                mDataBaseUser = dataSnapshot.getValue(User.class);
+                startActivity(new Intent(LoginActivity.this, MainActivity.class).putExtra("User", mDataBaseUser));
                 finish();
             }
 
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-                Log.e(TAG, "END OF Chaged");
             }
 
             @Override
@@ -258,7 +259,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
 
             @Override
             public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-                Log.e(TAG, "END OF Moved");
+
             }
 
             @Override
